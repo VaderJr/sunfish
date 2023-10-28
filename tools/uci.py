@@ -43,7 +43,7 @@ def go_loop(searcher, hist, stop_event, max_movetime=0, max_depth=0, debug=False
             "depth": depth,
             "time": round(1000 * elapsed),
             "nodes": searcher.nodes,
-            "nps": round(searcher.nodes / elapsed),
+            "nps": round(searcher.nodes / elapsed) if elapsed != 0 else 0,
         }
         if score >= gamma:
             fields["score cp"] = f"{score} lowerbound"
@@ -69,13 +69,13 @@ def go_loop(searcher, hist, stop_event, max_movetime=0, max_depth=0, debug=False
 
 
 def mate_loop(
-    searcher,
-    hist,
-    stop_event,
-    max_movetime=0,
-    max_depth=0,
-    find_draw=False,
-    debug=False,
+        searcher,
+        hist,
+        stop_event,
+        max_movetime=0,
+        max_depth=0,
+        find_draw=False,
+        debug=False,
 ):
     start = time.time()
     for d in range(int(max_depth) + 1):
@@ -113,7 +113,6 @@ def mate_loop(
 
 
 def perft(pos, depth, debug=False):
-
     def _perft_count(pos, depth):
         # Check that we didn't get to an illegal position
         if can_kill_king(pos):
@@ -212,7 +211,7 @@ def run(sunfish_module, startpos):
                             hist.append(hist[-1].move(parse_move(move, len(hist) % 2 == 1)))
 
                 elif args[0] == "go":
-                    think = 10**6
+                    think = 10 ** 6
                     max_depth = 100
                     loop = go_loop
 
@@ -289,7 +288,7 @@ def from_fen(board, color, castling, enpas, _hclock, _fclock):
         pos = pos._replace(score=pos.calculate_score())
     else:
         score = sum(sunfish.pst[c][i] for i, c in enumerate(board) if c.isupper())
-        score -= sum(sunfish.pst[c.upper()][119-i] for i, c in enumerate(board) if c.islower())
+        score -= sum(sunfish.pst[c.upper()][119 - i] for i, c in enumerate(board) if c.islower())
         pos = sunfish.Position(board, score, wc, bc, ep, 0)
     return pos if color == 'w' else pos.rotate()
 
@@ -302,8 +301,8 @@ def get_color(pos):
 def can_kill_king(pos):
     # If we just checked for opponent moves capturing the king, we would miss
     # captures in case of illegal castling.
-    #MATE_LOWER = 60_000 - 10 * 929
-    #return any(pos.value(m) >= MATE_LOWER for m in pos.gen_moves())
+    # MATE_LOWER = 60_000 - 10 * 929
+    # return any(pos.value(m) >= MATE_LOWER for m in pos.gen_moves())
     return any(pos.board[m.j] == 'k' or abs(m.j - pos.kp) < 2 for m in pos.gen_moves())
 
 
