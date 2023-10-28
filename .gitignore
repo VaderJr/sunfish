@@ -57,3 +57,14 @@ profile.pstats
 
 # Vim
 *.swp
+
+# Dist folder
+dist
+
+# Build folder
+build
+# Idea folder ignore
+.idea
+
+# Ignore this file from pyinstaller
+*.spec
